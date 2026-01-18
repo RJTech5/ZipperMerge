@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zipper Merge Simulation</title>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/car.js"></script>
+    <script src="static/js/carLogic.js"></script>
+    <script src="static/js/road.js"></script>
+    <script src="static/js/render.js"></script>
+    <script src="static/js/simulation.js"></script>
+    <link rel="stylesheet" href="static/styles/base.css">
+</head>
+<body>
+<h1>ZipperMergeLab.com</h1>
+<div id="road1">
+    <div class="controls">
+        <div class="control-group">
+            <label for="mergeTendency" id="mergeTendencyLabel">Merge Tendency</label>
+            <div class="slider-row">
+                <input type="range" id="mergeTendency" min="0" max="1" step="0.05" value="0.9">
+                <span class="value" id="mergeTendencyValue">0.90</span>
+            </div>
+            <span class="description">How early drivers attempt to merge (0 = late, 1 = early)</span>
+        </div>
+
+        <div class="control-group">
+            <label for="cooperation">Cooperation</label>
+            <div class="slider-row">
+                <input type="range" id="cooperation" min="0" max="1" step="0.05" value="0.5">
+                <span class="value" id="cooperationValue">0.50</span>
+            </div>
+            <span class="description">How willing drivers are to let others merge (0 = selfish, 1 = cooperative)</span>
+        </div>
+
+        <div class="control-group">
+            <label for="aggressiveness">Following Distance</label>
+            <div class="slider-row">
+                <input type="range" id="aggressiveness" min="0" max="1" step="0.05" value="0.5">
+                <span class="value" id="aggressivenessValue">0.50</span>
+            </div>
+            <span class="description">How close do cars follow each other (0 = close, 1 = far)</span>
+        </div>
+    </div>
+
+    <div class="advanced-toggle">
+        <input type="checkbox" id="advancedToggle1">
+        <label for="advancedToggle1">Show Advanced (Variance)</label>
+    </div>
+
+    <div class="advanced-controls" id="advancedControls1">
+        <div class="control-group">
+            <label for="mergeTendencyVar">Merge Tendency Variance</label>
+            <div class="slider-row">
+                <input type="range" id="mergeTendencyVar" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="value" id="mergeTendencyVarValue">0.10</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="cooperationVar">Cooperation Variance</label>
+            <div class="slider-row">
+                <input type="range" id="cooperationVar" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="value" id="cooperationVarValue">0.10</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="aggressivenessVar">Following Variance</label>
+            <div class="slider-row">
+                <input type="range" id="aggressivenessVar" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="value" id="aggressivenessVarValue">0.10</span>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="roadCanvas" width="2000" height="80"></canvas>
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-label">Throughput:</span>
+            <span class="stat-value" id="carsPerSecond1">0.00</span>
+            <span class="stat-label">cars/sec</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Fairness:</span>
+            <span class="stat-value" id="fairness1">1.00</span>
+        </div>
+        <button class="reset-btn" id="resetBtn1">Reset</button>
+    </div>
+    <script>
+        const mergeLabel = document.getElementById("mergeTendencyLabel")
+
+        const sim = new Simulation('roadCanvas', {
+            lanes: 2,
+            blockedLanes: 1,
+            spaceSize: 15,
+            mergeTendency: 0.9,
+            cooperation: 0.5,
+            aggressiveness: 0.5
+        });
+        sim.start();
+
+        // Wire up sliders
+        function setupSlider1(id, property) {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(id + 'Value');
+            setTendencyLabel(parseFloat(0.9));
+
+            slider.addEventListener('input', () => {
+                const value = parseFloat(slider.value);
+                setTendencyLabel(value)
+                sim[property] = value;
+                valueDisplay.textContent = value.toFixed(2);
+            });
+        }
+
+        function setTendencyLabel(value) {
+            let tendency = "mixed";
+            if (value < 0.3) {
+                tendency = "early merge";
+            } else if (value > 0.6) {
+                tendency = "zipper merge";
+            }
+            mergeLabel.innerHTML = `Merge Tendency: ${tendency}`;
+        }
+
+        setupSlider1('mergeTendency', 'mergeTendency');
+        setupSlider1('cooperation', 'cooperation');
+        setupSlider1('aggressiveness', 'aggressiveness');
+        setupSlider1('mergeTendencyVar', 'mergeTendencyVariance');
+        setupSlider1('cooperationVar', 'cooperationVariance');
+        setupSlider1('aggressivenessVar', 'aggressivenessVariance');
+
+        // Advanced toggle
+        document.getElementById('advancedToggle1').addEventListener('change', (e) => {
+            document.getElementById('advancedControls1').classList.toggle('visible', e.target.checked);
+        });
+
+        // Update stats display
+        const cpsDisplay1 = document.getElementById('carsPerSecond1');
+        const fairnessDisplay1 = document.getElementById('fairness1');
+        setInterval(() => {
+            cpsDisplay1.textContent = sim.getCarsPerSecond().toFixed(2);
+            fairnessDisplay1.textContent = sim.getFairness().toFixed(2);
+        }, 500);
+
+        // Reset button
+        document.getElementById('resetBtn1').addEventListener('click', () => sim.reset());
+    </script>
+</div>
+<div id="road2">
+    <div class="controls">
+        <div class="control-group">
+            <label for="mergeTendency2" id="mergeTendencyLabel2">Merge Tendency</label>
+            <div class="slider-row">
+                <input type="range" id="mergeTendency2" min="0" max="1" step="0.05" value="0.2">
+                <span class="value" id="mergeTendency2Value">0.20</span>
+            </div>
+            <span class="description">How early drivers attempt to merge (0 = late, 1 = early)</span>
+        </div>
+
+        <div class="control-group">
+            <label for="cooperation2">Cooperation</label>
+            <div class="slider-row">
+                <input type="range" id="cooperation2" min="0" max="1" step="0.05" value="0.5">
+                <span class="value" id="cooperation2Value">0.50</span>
+            </div>
+            <span class="description">How willing drivers are to let others merge (0 = selfish, 1 = cooperative)</span>
+        </div>
+
+        <div class="control-group">
+            <label for="aggressiveness2">Following Distance</label>
+            <div class="slider-row">
+                <input type="range" id="aggressiveness2" min="0" max="1" step="0.05" value="0.5">
+                <span class="value" id="aggressiveness2Value">0.50</span>
+            </div>
+            <span class="description">How close do cars follow each other (0 = close, 1 = far)</span>
+        </div>
+    </div>
+
+    <div class="advanced-toggle">
+        <input type="checkbox" id="advancedToggle2">
+        <label for="advancedToggle2">Show Advanced (Variance)</label>
+    </div>
+
+    <div class="advanced-controls" id="advancedControls2">
+        <div class="control-group">
+            <label for="mergeTendencyVar2">Merge Tendency Variance</label>
+            <div class="slider-row">
+                <input type="range" id="mergeTendencyVar2" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="value" id="mergeTendencyVar2Value">0.10</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="cooperationVar2">Cooperation Variance</label>
+            <div class="slider-row">
+                <input type="range" id="cooperationVar2" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="value" id="cooperationVar2Value">0.10</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="aggressivenessVar2">Following Variance</label>
+            <div class="slider-row">
+                <input type="range" id="aggressivenessVar2" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="value" id="aggressivenessVar2Value">0.10</span>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="roadCanvas2" width="2000" height="80"></canvas>
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-label">Throughput:</span>
+            <span class="stat-value" id="carsPerSecond2">0.00</span>
+            <span class="stat-label">cars/sec</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Fairness:</span>
+            <span class="stat-value" id="fairness2">1.00</span>
+        </div>
+        <button class="reset-btn" id="resetBtn2">Reset</button>
+    </div>
+    <script>
+        const mergeLabel2 = document.getElementById("mergeTendencyLabel2")
+
+        // Create and start the simulation
+        const sim2 = new Simulation('roadCanvas2', {
+            lanes: 2,
+            blockedLanes: 1,
+            spaceSize: 15,
+            mergeTendency: 0.2,
+            cooperation: 0.5,
+            aggressiveness: 0.5
+        });
+        sim2.start();
+
+        // Wire up sliders
+        function setupSlider2(id, property) {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(id + 'Value');
+            setTendencyLabel2(parseFloat(slider.value));
+
+            slider.addEventListener('input', () => {
+                const value = parseFloat(slider.value);
+                setTendencyLabel2(value);
+                sim2[property] = value;
+                valueDisplay.textContent = value.toFixed(2);
+            });
+        }
+
+        function setTendencyLabel2(value) {
+            let tendency = "mixed";
+            if (value < 0.3) {
+                tendency = "early merge";
+            } else if (value > 0.6) {
+                tendency = "zipper merge";
+            }
+            mergeLabel2.innerHTML = `Merge Tendency: ${tendency}`;
+        }
+
+        setupSlider2('mergeTendency2', 'mergeTendency');
+        setupSlider2('cooperation2', 'cooperation');
+        setupSlider2('aggressiveness2', 'aggressiveness');
+        setupSlider2('mergeTendencyVar2', 'mergeTendencyVariance');
+        setupSlider2('cooperationVar2', 'cooperationVariance');
+        setupSlider2('aggressivenessVar2', 'aggressivenessVariance');
+
+        // Advanced toggle
+        document.getElementById('advancedToggle2').addEventListener('change', (e) => {
+            document.getElementById('advancedControls2').classList.toggle('visible', e.target.checked);
+        });
+
+        // Update stats display
+        const cpsDisplay2 = document.getElementById('carsPerSecond2');
+        const fairnessDisplay2 = document.getElementById('fairness2');
+        setInterval(() => {
+            cpsDisplay2.textContent = sim2.getCarsPerSecond().toFixed(2);
+            fairnessDisplay2.textContent = sim2.getFairness().toFixed(2);
+        }, 500);
+
+        // Reset button
+        document.getElementById('resetBtn2').addEventListener('click', () => sim2.reset());
+    </script>
+</div>
+</body>
+</html>
