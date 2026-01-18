@@ -3,6 +3,9 @@
   <p align="center">
     <strong>An interactive traffic simulation demonstrating the effectiveness of zipper merging</strong>
   </p>
+  <p align="center">
+    <a href="https://zippermergelab.com/">Live Demo</a>
+  </p>
 </p>
 
 ---
