@@ -100,6 +100,8 @@ ZipperMerge/
         ├── road.js       # Road management and car coordination
         ├── render.js     # Canvas rendering and animations
         └── utils.js      # Utility functions
+    └── styles/
+        └── base.css      # styling file
 ```
 
 ---
