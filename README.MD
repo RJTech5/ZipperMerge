@@ -103,11 +103,13 @@ ZipperMerge/
         ├── road.js       # Road management and car coordination
         ├── render.js     # Canvas rendering and animations
         └── utils.js      # Utility functions
+    └── styles/
+        └── base.css      # styling file
 ```
 
 ---
 
-## AI Generation Disclosure
+## Vibe Coding and AI Disclosure
 
 This project was created with a combination of human work and AI assistance. In the interest of transparency:
 
