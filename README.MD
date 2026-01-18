@@ -104,7 +104,7 @@ ZipperMerge/
 
 ---
 
-## AI Generation Disclosure
+## Vibe Coding and AI Disclosure
 
 This project was created with a combination of human work and AI assistance. In the interest of transparency:
 
